@@ -1,11 +1,13 @@
-FROM python:3.8-alpine
+FROM python:3.12-slim
 
+# setting environment
 WORKDIR /app
+
+COPY ./requirements.txt /app/requirements.txt
+
+RUN pip install -r /app/requirements.txt
 
 COPY . .
 
-RUN apk add --no-cache --virtual .build-deps gcc musl-dev
-
-RUN pip install --no-cache-dir -r requirements.txt
-
+# starting
 CMD ["python", "main.py"]

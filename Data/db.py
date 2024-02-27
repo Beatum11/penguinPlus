@@ -17,5 +17,5 @@ class MongoDB:
             raise Exception("This class is a Singleton!")
         else:
             load_dotenv()
-            MONGO_STRING = os.environ.get("MONGO_STRING")
+            MONGO_STRING: str = os.environ.get("MONGO_STRING")
             MongoDB._instance = motorio.AsyncIOMotorClient(MONGO_STRING)
