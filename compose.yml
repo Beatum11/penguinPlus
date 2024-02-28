@@ -5,7 +5,7 @@ services:
     build: .
     restart: always
     volumes:
-      - ai_penguin_logs:./application.log
+      - ai_penguin_logs:/logs
 
 volumes:
   ai_penguin_logs:

@@ -21,7 +21,9 @@ async def conversation_loop(bot, message, user_service, openai):
         await user_service.create_chat_history(chat_id=message.chat.id,
                                                role='user', message=message.text)
 
+        # line, responsible for requests to openai
         await start_communication(bot, message, openai, user_service)
+
         user['credits'] -= 1
         await user_service.update_credits(message.chat.id, user['credits'])
     except ConnectionError as e:
