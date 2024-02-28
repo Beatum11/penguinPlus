@@ -2,6 +2,7 @@ from Utils.keyboard import get_main_keyboard
 import aiohttp
 from aiohttp import ClientResponseError
 import asyncio
+from loguru import logger
 
 
 async def start_communication(bot, message, openai, user_service):
@@ -42,6 +43,7 @@ async def start_communication(bot, message, openai, user_service):
                                                                role='system', message=send_msg)
 
                         await bot.send_message(message.chat.id, send_msg, reply_markup=markup, parse_mode='Markdown')
+                        logger.info(f'Для {message.chat.id} было успешно сгенерированно сообщение')
                         break  # Выход из цикла, если запрос успешен
                     else:
                         raise aiohttp.ClientResponseError(response.request_info,
@@ -53,7 +55,9 @@ async def start_communication(bot, message, openai, user_service):
                 await asyncio.sleep(delay)  # Ждем перед следующей попыткой
                 delay *= 2  # Увеличиваем задержку для следующей попытки
             else:
-                await bot.send_message(message.chat.id, 'Попытки закончились. Попробуйте позже.')
+                await bot.send_message(message.chat.id, 'Проблемы с соединением, попробуйте буквально через минуту.')
+                logger.error(f'Какие-то проблемы с соединением у {message.chat.id} - {e}')
         except Exception as e:
             await bot.send_message(message.chat.id, 'Неизвестная ошибка. Попробуй чуть позже.')
+            logger.error(f'Необработанная ошибка у {message.chat.id} - {e}')
             break

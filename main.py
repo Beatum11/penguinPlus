@@ -10,15 +10,21 @@ from Handlers.check_credits_handler import check_credits
 from Handlers.conversation_loop_handler import conversation_loop
 from Handlers.open_and_send_handler import open_and_send_photo
 from Utils.keyboard import get_main_keyboard
+from Utils.setup_logging import setup_logging
+from pathlib import Path
+from loguru import logger
 
+
+app_root = Path(__file__).parent
 load_dotenv()
+
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 openai.api_key = os.environ.get("GPT_KEY")
 
 bot = AsyncTeleBot(BOT_TOKEN)
 users_service = UsersService()
 
-chat_histories = {}
+setup_logging(app_root)
 
 
 # This command is responsible for starting the conversation.
@@ -27,15 +33,14 @@ chat_histories = {}
 
 @bot.message_handler(commands=['start'])
 async def start_logic(message):
-    state = await users_service.update_state(message.chat.id, "in_start")
-    print(f'state in start mode: {state}')
+    await users_service.update_state(message.chat.id, "in_start")
+    logger.info(f'Start the conversation by {message.chat.id}')
 
     r = random.randint(1, 4)
     await open_and_send_photo(bot, message, f'./Assets/hello_pen_{r}.png')
     await start_handler(bot, message)
 
-    state = await users_service.update_state(message.chat.id, "no_state")
-    print(f'state at the end of start mode: {state}')
+    await users_service.update_state(message.chat.id, "no_state")
 
 
 # This command checks user's amount of answers.

@@ -4,3 +4,8 @@ services:
   app:
     build: .
     restart: always
+    volumes:
+      - ai_penguin_logs:./application.log
+
+volumes:
+  ai_penguin_logs:
