@@ -7,5 +7,6 @@ def get_main_keyboard():
     pen_talk = types.KeyboardButton('/penguin_talk')
     pen_check = types.KeyboardButton('/penguin_check')
     pen_pay = types.KeyboardButton('/penguin_pay')
-    markup.add(pen_talk, pen_check, pen_pay)
+    pic_pen = types.KeyboardButton('/penguin_pic')
+    markup.add(pen_talk, pen_check, pen_pay, pic_pen)
     return markup

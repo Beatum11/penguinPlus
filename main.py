@@ -13,6 +13,7 @@ from Utils.keyboard import get_main_keyboard
 from Utils.setup_logging import setup_logging
 from pathlib import Path
 from loguru import logger
+from Handlers.pic_loop import picture_loop
 
 
 app_root = Path(__file__).parent
@@ -33,14 +34,11 @@ setup_logging(app_root)
 
 @bot.message_handler(commands=['start'])
 async def start_logic(message):
-    await users_service.update_state(message.chat.id, "in_start")
     logger.info(f'Start the conversation by {message.chat.id}')
 
-    r = random.randint(1, 4)
+    r = random.randint(1, 3)
     await open_and_send_photo(bot, message, f'./Assets/hello_pen_{r}.png')
     await start_handler(bot, message)
-
-    await users_service.update_state(message.chat.id, "no_state")
 
 
 # This command checks user's amount of answers.
@@ -65,6 +63,15 @@ async def talk_handler(message):
     await bot.send_message(message.chat.id, text)
 
 
+@bot.message_handler(commands=['penguin_pic'])
+async def picture_handler(message):
+    await users_service.update_state(message.chat.id, "in_pic_creation")
+    text = (f"ВАЖНО: каждая новая картинка - это новый запрос. Я не помню, что рисовал до этого 😄\n\n"
+            f"Что мне нарисовать:")
+
+    await bot.send_message(message.chat.id, text)
+
+
 # This function will work only if a user will be in 'in_conversation' state.
 # It means that user will receive messages only if he used previous command that changed the state.
 
@@ -83,10 +90,9 @@ async def pay_command(message):
 
     await bot.send_message(message.chat.id, 'Чтобы купить доп. кредиты, напишите сюда: @phineus1\n\n'
                                             'Есть несколько пакетов:\n'
-                                            '- 1000 кредитов -  59р.\n'
-                                            '- 2000 кредитов - 99р.\n'
-                                            '- 4000 кредитов - 169р.\n\n'
-                                            '4000 кредитов может хватить на несколько месяцев вперед!')
+                                            '- 10 кредитов -  79р.\n'
+                                            '- 50 кредитов - 359р.\n'
+                                            '- 100 кредитов - 699р.')
 
     await users_service.update_state(message.chat.id, "no_state")
 
@@ -134,6 +140,8 @@ async def text_handler(message):
         await talk_handler(message)
     elif message.text == '/penguin_check':
         await credits_handler(message)
+    elif message.text == '/penguin_pic':
+        await picture_handler(message)
 
     if user_state == 'no_state':
         markup = get_main_keyboard()
@@ -141,6 +149,8 @@ async def text_handler(message):
                                "Воспользуйся одной из команд", reply_markup=markup)
     elif user_state == 'in_conversation':
         await conversation_loop(bot, message, openai=openai, user_service=users_service)
+    elif user_state == 'in_pic_creation':
+        await picture_loop(bot, message, openai=openai, user_service=users_service)
 
 
 asyncio.run(bot.polling())

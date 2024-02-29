@@ -16,12 +16,14 @@ class UsersService:
         user_to_post = {
             "chat_id": chat_id,
             "username": username,
-            "credits": 55,
+            "credits": 7,
             "state": "",
             "chat_history": [],
         }
 
+        print(user_to_post)
         res = await self.users.insert_one(user_to_post)
+        print(res)
 
         if res.acknowledged:
             inserted_user = await self.users.find_one({"_id": res.inserted_id})
@@ -34,7 +36,7 @@ class UsersService:
                                               "$push": {
                                                   "chat_history": {
                                                       "$each": [{"role": role, "content": message}],
-                                                      "$slice": -9
+                                                      "$slice": -6
                                                       # Ограничиваем размер массива до последних 13 элементов
                                                   }
                                               }

@@ -1,30 +1,25 @@
 from Utils.keyboard import get_main_keyboard
 import aiohttp
-from aiohttp import ClientResponseError
 import asyncio
 from loguru import logger
 
 
-async def start_communication(bot, message, openai, user_service):
+async def start_pic_creation(bot, message, openai, user_service):
 
-    chat_history = await user_service.get_chat_history(message.chat.id)
-
-    url = "https://api.openai.com/v1/chat/completions"
+    url = "https://api.openai.com/v1/images/generations"
     headers = {
         "Authorization": f"Bearer {openai.api_key}",
         "Content-Type": "application/json"
     }
     data = {
-        "model": "gpt-4-0125-preview",
-        "messages": chat_history,
-        "temperature": 1,
-        "max_tokens": 600,
-        "top_p": 1,
-        "frequency_penalty": 0.5,
-        "presence_penalty": 0.5
+        "model": "dall-e-3",  # Используй актуальное название модели DALL·E
+        "prompt": message.text,
+        "n": 1,  # Количество изображений
+        "size": "1024x1024",
+        "quality": "standard"
     }
-    markup = get_main_keyboard()
 
+    markup = get_main_keyboard()
     await bot.send_chat_action(message.chat.id, 'typing')
 
     max_attempts = 3  # Максимальное количество попыток
@@ -37,13 +32,10 @@ async def start_communication(bot, message, openai, user_service):
                 async with session.post(url, json=data, headers=headers) as response:
                     if response.status == 200:
                         answer = await response.json()
-                        send_msg = answer['choices'][0]['message']['content']
+                        image_url = answer['data'][0]['url']
 
-                        await user_service.create_chat_history(chat_id=message.chat.id,
-                                                               role='system', message=send_msg)
-
-                        await bot.send_message(message.chat.id, send_msg, reply_markup=markup, parse_mode='Markdown')
-                        logger.info(f'Для {message.chat.id} было успешно сгенерированно сообщение')
+                        await bot.send_photo(message.chat.id, image_url, reply_markup=markup)
+                        logger.info(f'Для {message.chat.id} было успешно сгенерированно изображение')
                         break  # Выход из цикла, если запрос успешен
                     else:
                         raise aiohttp.ClientResponseError(response.request_info,
