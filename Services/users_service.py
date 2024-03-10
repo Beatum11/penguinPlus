@@ -36,7 +36,7 @@ class UsersService:
                                               "$push": {
                                                   "chat_history": {
                                                       "$each": [{"role": role, "content": message}],
-                                                      "$slice": -5
+                                                      "$slice": -6
                                                       # Ограничиваем размер массива до последних 5 элементов
                                                   }
                                               }
