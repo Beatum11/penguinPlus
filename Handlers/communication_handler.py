@@ -18,7 +18,7 @@ async def start_communication(bot, message, openai, user_service):
         "model": "gpt-4-0125-preview",
         "messages": chat_history,
         "temperature": 1,
-        "max_tokens": 600,
+        "max_tokens": 650,
         "top_p": 1,
         "frequency_penalty": 0.5,
         "presence_penalty": 0.5

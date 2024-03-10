@@ -16,7 +16,7 @@ class UsersService:
         user_to_post = {
             "chat_id": chat_id,
             "username": username,
-            "credits": 7,
+            "credits": 15,
             "state": "",
             "chat_history": [],
         }
@@ -36,8 +36,8 @@ class UsersService:
                                               "$push": {
                                                   "chat_history": {
                                                       "$each": [{"role": role, "content": message}],
-                                                      "$slice": -6
-                                                      # Ограничиваем размер массива до последних 13 элементов
+                                                      "$slice": -5
+                                                      # Ограничиваем размер массива до последних 5 элементов
                                                   }
                                               }
                                           })

@@ -4,7 +4,7 @@ from loguru import logger
 
 
 # Эта функция отвечает за процесс общения с ИИ
-async def picture_loop(bot, message, user_service, openai):
+async def picture_loop(bot, message, user_service):
     try:
         user = await user_service.get_user(message.chat.id)
         users_credits = user['credits']
@@ -17,7 +17,7 @@ async def picture_loop(bot, message, user_service, openai):
             await user_service.update_state(message.chat.id, "no_state")
             return
 
-        await start_pic_creation(bot, message, openai, user_service)
+        await start_pic_creation(bot, message)
 
         user['credits'] -= 1
         await user_service.update_credits(message.chat.id, user['credits'])

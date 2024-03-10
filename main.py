@@ -9,7 +9,7 @@ from Handlers.start_handler import start_handler
 from Handlers.check_credits_handler import check_credits
 from Handlers.conversation_loop_handler import conversation_loop
 from Handlers.open_and_send_handler import open_and_send_photo
-from Utils.keyboard import get_main_keyboard
+from Utils.keyboard import get_main_keyboard, get_price_keyboard
 from Utils.setup_logging import setup_logging
 from pathlib import Path
 from loguru import logger
@@ -88,11 +88,9 @@ async def picture_handler(message):
 async def pay_command(message):
     await users_service.update_state(message.chat.id, "payment_process")
 
-    await bot.send_message(message.chat.id, 'Чтобы купить доп. кредиты, напишите сюда: @phineus1\n\n'
-                                            'Есть несколько пакетов:\n'
-                                            '- 10 кредитов -  79р.\n'
-                                            '- 50 кредитов - 359р.\n'
-                                            '- 100 кредитов - 699р.')
+    markup = get_price_keyboard()
+    await bot.send_message(message.chat.id,
+                           "Сколько покупаем кредитов:", reply_markup=markup)
 
     await users_service.update_state(message.chat.id, "no_state")
 
@@ -142,6 +140,30 @@ async def text_handler(message):
         await credits_handler(message)
     elif message.text == '/penguin_pic':
         await picture_handler(message)
+    elif message.text == '10 кредитов - 49р.':
+        await bot.send_message(chat_id,
+                               '🛑<b>ВАЖНО</b>🛑\n'
+                               'Необходимо будет переслать сгенерированный чек сюда: @phineus1\n\n'
+                               '<a href="https://pro.selfwork.ru/kassa/10_credits">Ссылка для оплаты</a>\n\n'
+                               'P.S. Для удобства, сейчас произойдет автоматический переход в стандартный режим выбора '
+                               'команд 🐧',
+                               parse_mode='HTML')
+    elif message.text == '50 кредитов - 219р.':
+        await bot.send_message(chat_id,
+                               '🛑<b>ВАЖНО</b>🛑\n'
+                               'Необходимо будет переслать сгенерированный чек сюда: @phineus1\n\n'
+                               '<a href="https://pro.selfwork.ru/kassa/50_credits">Ссылка для оплаты</a>\n\n'
+                               'P.S. Для удобства, сейчас произойдет автоматический переход в стандартный режим выбора '
+                               'команд 🐧',
+                               parse_mode='HTML')
+    elif message.text == '100 кредитов - 399р.':
+        await bot.send_message(chat_id,
+                               '🛑<b>ВАЖНО</b>🛑\n'
+                               'Необходимо будет переслать сгенерированный чек сюда: @phineus1\n\n'
+                               '<a href="https://pro.selfwork.ru/kassa/100_credits">Ссылка для оплаты</a>\n\n'
+                               'P.S. Для удобства, сейчас произойдет автоматический переход в стандартный режим выбора '
+                               'команд 🐧',
+                               parse_mode='HTML')
 
     if user_state == 'no_state':
         markup = get_main_keyboard()
@@ -150,7 +172,7 @@ async def text_handler(message):
     elif user_state == 'in_conversation':
         await conversation_loop(bot, message, openai=openai, user_service=users_service)
     elif user_state == 'in_pic_creation':
-        await picture_loop(bot, message, openai=openai, user_service=users_service)
+        await picture_loop(bot, message, user_service=users_service)
 
 
 asyncio.run(bot.polling())
