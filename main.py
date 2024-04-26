@@ -42,11 +42,9 @@ async def start_logic(message):
 
 
 # This command checks user's amount of answers.
-@bot.message_handler(commands=['penguin_check'])
+@bot.message_handler(commands=['check'])
 async def credits_handler(message):
-    await users_service.update_state(message.chat.id, "answers_cheking")
     await check_credits(bot, message)
-
     await users_service.update_state(message.chat.id, "no_state")
 
 
@@ -54,16 +52,15 @@ async def credits_handler(message):
 # in particular, after that command user will send messages directly to openai
 # And important note, that user_state now will hold 'in_conversation' mode.
 
-@bot.message_handler(commands=['penguin_talk'])
+@bot.message_handler(commands=['speak'])
 async def talk_handler(message):
     await users_service.update_state(message.chat.id, "in_conversation")
     text = (f"Со следующего сообщения ты войдешь в режим разговора 🐧\n\n"
             f"Напиши свой вопрос или тему, и я постараюсь помочь! 🧐")
-
     await bot.send_message(message.chat.id, text)
 
 
-@bot.message_handler(commands=['penguin_pic'])
+@bot.message_handler(commands=['create'])
 async def picture_handler(message):
     await users_service.update_state(message.chat.id, "in_pic_creation")
     text = (f"ВАЖНО: каждая новая картинка - это новый запрос. Я не помню, что рисовал до этого 😄\n\n"
@@ -84,10 +81,9 @@ async def picture_handler(message):
 #     print(state)
 
 
-@bot.message_handler(commands=['penguin_pay'])
+@bot.message_handler(commands=['buy'])
 async def pay_command(message):
     await users_service.update_state(message.chat.id, "payment_process")
-
     markup = get_price_keyboard()
     await bot.send_message(message.chat.id,
                            "Сколько покупаем кредитов:", reply_markup=markup)
@@ -129,16 +125,19 @@ async def pay_command(message):
 
 @bot.message_handler(content_types=['text'])
 async def text_handler(message):
+
     chat_id = message.chat.id
     user_state = await users_service.get_current_state(chat_id)
 
-    if message.text == '/penguin_pay':
+    if message.text == '/buy':
         await pay_command(message)
-    elif message.text == '/penguin_talk':
+    elif message.text == '/speak':
+        print(user_state)
         await talk_handler(message)
-    elif message.text == '/penguin_check':
+    elif message.text == '/check':
+        await users_service.update_state(message.chat.id, "answers_cheking")
         await credits_handler(message)
-    elif message.text == '/penguin_pic':
+    elif message.text == '/create':
         await picture_handler(message)
     elif message.text == '10 кредитов - 49р.':
         await bot.send_message(chat_id,
@@ -147,7 +146,7 @@ async def text_handler(message):
                                '<a href="https://pro.selfwork.ru/kassa/10_credits">Ссылка для оплаты</a>\n\n'
                                'P.S. Для удобства, сейчас произойдет автоматический переход в стандартный режим выбора '
                                'команд 🐧',
-                               parse_mode='HTML')
+                               parse_mode='HTML', disable_web_page_preview=True)
     elif message.text == '50 кредитов - 219р.':
         await bot.send_message(chat_id,
                                '🛑<b>ВАЖНО</b>🛑\n'
@@ -155,7 +154,7 @@ async def text_handler(message):
                                '<a href="https://pro.selfwork.ru/kassa/50_credits">Ссылка для оплаты</a>\n\n'
                                'P.S. Для удобства, сейчас произойдет автоматический переход в стандартный режим выбора '
                                'команд 🐧',
-                               parse_mode='HTML')
+                               parse_mode='HTML', disable_web_page_preview=True)
     elif message.text == '100 кредитов - 399р.':
         await bot.send_message(chat_id,
                                '🛑<b>ВАЖНО</b>🛑\n'
@@ -163,7 +162,7 @@ async def text_handler(message):
                                '<a href="https://pro.selfwork.ru/kassa/100_credits">Ссылка для оплаты</a>\n\n'
                                'P.S. Для удобства, сейчас произойдет автоматический переход в стандартный режим выбора '
                                'команд 🐧',
-                               parse_mode='HTML')
+                               parse_mode='HTML', disable_web_page_preview=True)
 
     if user_state == 'no_state':
         markup = get_main_keyboard()

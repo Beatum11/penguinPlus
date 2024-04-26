@@ -4,10 +4,10 @@ from telebot import types
 # Функция отвечает за рендер клавиатуры
 def get_main_keyboard():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    pen_talk = types.KeyboardButton('/penguin_talk')
-    pen_check = types.KeyboardButton('/penguin_check')
-    pen_pay = types.KeyboardButton('/penguin_pay')
-    pic_pen = types.KeyboardButton('/penguin_pic')
+    pen_talk = types.KeyboardButton('/speak')
+    pen_check = types.KeyboardButton('/check')
+    pen_pay = types.KeyboardButton('/buy')
+    pic_pen = types.KeyboardButton('/create')
     markup.add(pen_talk, pen_check, pen_pay, pic_pen)
     return markup
 

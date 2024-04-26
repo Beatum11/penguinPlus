@@ -8,7 +8,7 @@ async def check_credits(bot, message):
     user_service = UsersService()
     user = await user_service.get_user(message.chat.id)
 
-    text = f"Осталось {user['credits']} кредитов 🐧"
+    text = f"🐧 Осталось кредитов: {user['credits']}"
     markup = get_main_keyboard()
     await bot.send_message(message.chat.id, text, reply_markup=markup)
 
