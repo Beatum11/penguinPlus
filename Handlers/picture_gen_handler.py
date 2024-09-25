@@ -8,10 +8,13 @@ import base64
 import requests
 import os
 from Utils.translate_handler import translate_word
+from dotenv import load_dotenv
 
 
 async def start_pic_creation(bot, message):
 
+    load_dotenv()
+    stability_string: str = os.environ.get("STABILITY_API_KEY")
     trans_prompt = await translate_word(message.text)
 
     url = "https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image"
@@ -30,11 +33,10 @@ async def start_pic_creation(bot, message):
         ]
     }
 
-    api_key = 'sk-EW7icLBwffmrRXbHzzQT6gCVBuGexQw20OH3I21nWunKSoUo'
     stable_headers = {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}",
+        "Authorization": f"Bearer {stability_string}",
     }
 
     markup = get_main_keyboard()
@@ -57,8 +59,6 @@ async def start_pic_creation(bot, message):
                         with io.BytesIO(image_data) as image_buffer:
                             await bot.send_photo(message.chat.id, image_buffer.getvalue(), reply_markup=markup)
                         break
-
-
                     else:
                         raise aiohttp.ClientResponseError(response.request_info,
                                                           response.history,
@@ -75,35 +75,3 @@ async def start_pic_creation(bot, message):
             await bot.send_message(message.chat.id, 'Неизвестная ошибка. Попробуй чуть позже.')
             logger.error(f'Необработанная ошибка у {message.chat.id} - {e}')
             break
-
-    # max_attempts = 3  # Максимальное количество попыток
-    # attempt = 0  # Текущая попытка
-    # delay = 2  # Задержка между попытками в секундах
-    #
-    # while attempt < max_attempts:
-    #     try:
-    #         async with aiohttp.ClientSession() as session:
-    #             async with session.post(url, json=data, headers=headers) as response:
-    #                 if response.status == 200:
-    #                     answer = await response.json()
-    #                     image_url = answer['data'][0]['url']
-    #
-    #                     await bot.send_photo(message.chat.id, image_url, reply_markup=markup)
-    #                     logger.info(f'Для {message.chat.id} было успешно сгенерированно изображение')
-    #                     break  # Выход из цикла, если запрос успешен
-    #                 else:
-    #                     raise aiohttp.ClientResponseError(response.request_info,
-    #                                                       response.history,
-    #                                                       status=response.status)
-    #     except (TimeoutError, aiohttp.ClientResponseError) as e:
-    #         attempt += 1
-    #         if attempt < max_attempts:
-    #             await asyncio.sleep(delay)  # Ждем перед следующей попыткой
-    #             delay *= 2  # Увеличиваем задержку для следующей попытки
-    #         else:
-    #             await bot.send_message(message.chat.id, 'Проблемы с соединением, попробуйте буквально через минуту.')
-    #             logger.error(f'Какие-то проблемы с соединением у {message.chat.id} - {e}')
-    #     except Exception as e:
-    #         await bot.send_message(message.chat.id, 'Неизвестная ошибка. Попробуй чуть позже.')
-    #         logger.error(f'Необработанная ошибка у {message.chat.id} - {e}')
-    #         break
